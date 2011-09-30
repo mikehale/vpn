@@ -12,9 +12,6 @@ if [ ! -f /usr/bin/chef-client ]; then
   gem update --no-rdoc --no-ri
   gem install ohai --no-rdoc --no-ri --verbose
   gem install chef --no-rdoc --no-ri --verbose
-
-  mkdir -p /etc/chef
-  mkdir -p /var/chef/cookbooks
 fi
 
 chef-solo -j /etc/chef/dna.json

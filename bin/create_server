@@ -41,6 +41,10 @@ unless server = compute.servers.all.detect{|s| s.name == NAME }
 end
 
 Net::SSH.start(server.addresses["public"].first, USER) do |ssh|
+  ssh.exec!("mkdir -p /etc/chef /var/chef") do |channel, stream, data|
+    print data
+  end
+
   ssh.scp.upload!(FILES + '/bootstrap.sh', '/var/lib/misc/bootstrap.sh')
   ssh.scp.upload!(FILES + '/cookbooks/', "/var/chef/", :recursive => true)
   ssh.scp.upload!(StringIO.new({:run_list => RUN_LIST}.to_json), "/etc/chef/dna.json")
