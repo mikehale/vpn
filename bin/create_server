@@ -2,6 +2,8 @@
 
 require 'fog'
 require 'net/ssh'
+require 'net/scp'
+require 'json'
 
 NAME = "vpn"
 USER = "root"
@@ -17,9 +19,7 @@ compute = Fog::Compute.new(:provider           => 'Rackspace',
                            :rackspace_api_key  => ENV['RACKSPACE_API_KEY'],
                            :rackspace_username => ENV['RACKSPACE_USERNAME'])
 
-if server = compute.servers.all.detect{|s| s.name == NAME }
-  puts "\n\n#{USER}@#{server.addresses["public"].first} is ready"
-else
+unless server = compute.servers.all.detect{|s| s.name == NAME }
   server = compute.servers.create(
                                   :flavor_id => 1, # 256MB
                                   :image_id => 49, # Ubuntu 10.04 LTS 64bit
@@ -32,21 +32,22 @@ else
                                                    {
                                                      'path' => "/etc/ssh/sshd_config",
                                                      'contents' => File.read(FILES + '/sshd_config')
-                                                   },
-                                                   {
-                                                     'path' => "/var/lib/misc/bootstrap.sh",
-                                                     'contents' => File.read(FILES + '/bootstrap.sh')
                                                    }
                                                   ]
                                   )
   puts "Creating #{server.name} (#{compute.images.get(server.image_id).name} #{compute.flavors.get(server.flavor_id).name})"
   server.wait_for { ready? }
-
-  Net::SSH.start(server.addresses["public"].first, USER) do |ssh|
-    ssh.exec!("/bin/bash /var/lib/misc/bootstrap.sh") do |channel, stream, data|
-      print data
-    end
-  end
-
-  puts "\n\n#{USER}@#{server.addresses["public"].first} is ready"
 end
+
+Net::SSH.start(server.addresses["public"].first, USER) do |ssh|
+  ssh.scp.upload!(FILES + '/bootstrap.sh', '/var/lib/misc/bootstrap.sh')
+  ssh.scp.upload!(FILES + '/cookbooks/', "/var/chef/", :recursive => true)
+  ssh.scp.upload!(StringIO.new({:run_list => []}.to_json), "/etc/chef/dna.json")
+
+  ssh.exec!("/bin/bash /var/lib/misc/bootstrap.sh") do |channel, stream, data|
+    print data
+  end
+  puts ""
+end
+
+puts "#{USER}@#{server.addresses["public"].first} is ready"
