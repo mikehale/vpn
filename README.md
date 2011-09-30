@@ -5,6 +5,7 @@
 ** Use EAP-TLS for clients that support it (OS X, Windows)
 ** Ensure port 1812 is secure
 
-* Configure everything with chef
 * Ensure firewall is applied at boot
 * Setup OpenVPN
+* Consistent ssh-key
+* Consistent ip address
