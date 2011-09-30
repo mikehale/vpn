@@ -11,7 +11,7 @@ COMMIT
 :PREROUTING ACCEPT
 :POSTROUTING ACCEPT
 :OUTPUT ACCEPT
--A POSTROUTING -s 172.16.0.0/255.255.255.0 -o eth0 -j SNAT --to-source 50.57.140.21
+-A POSTROUTING -s 172.16.0.0/255.255.255.0 -o eth0 -j SNAT --to-source <%= @node[:public_ip] %>
 COMMIT
 
 *filter

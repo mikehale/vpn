@@ -12,14 +12,14 @@ conn L2TP-PSK-noNAT
   ikelifetime=8h
   keylife=1h
   type=transport
-  left=50.57.140.21
+  left=<%= @node[:public_ip] %>
   leftprotoport=17/%any
   right=%any
   rightprotoport=17/0
 
 conn passthrough-for-non-l2tp
   type=passthrough
-  left=50.57.140.21
+  left=<%= @node[:public_ip] %>
   right=0.0.0.0
   rightsubnet=0.0.0.0/0
   auto=route
