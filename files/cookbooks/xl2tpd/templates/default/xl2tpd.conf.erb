@@ -1,0 +1,12 @@
+[global]
+listen-addr = 50.57.140.21
+
+[lns default]
+ip range = 172.16.0.10-172.16.0.20
+local ip = 172.16.0.1
+
+refuse pap = yes
+require authentication = no
+ppp debug = yes
+pppoptfile = /etc/ppp/options.xl2tpd
+length bit = yes
