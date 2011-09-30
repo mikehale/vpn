@@ -48,6 +48,7 @@ Net::SSH.start(server.addresses["public"].first, USER) do |ssh|
   ssh.scp.upload!(FILES + '/bootstrap.sh', '/var/lib/misc/bootstrap.sh')
   ssh.scp.upload!(FILES + '/cookbooks/', "/var/chef/", :recursive => true)
   ssh.scp.upload!(StringIO.new({:run_list => RUN_LIST}.to_json), "/etc/chef/dna.json")
+  ssh.scp.upload!(StringIO.new(""), "/etc/chef/solo.rb")
 
   ssh.exec!("/bin/bash /var/lib/misc/bootstrap.sh") do |channel, stream, data|
     print data
