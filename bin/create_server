@@ -1,0 +1,48 @@
+#!/usr/bin/env ruby
+
+require 'fog'
+require 'net/ssh'
+
+FILES = File.expand_path(File.dirname(__FILE__) + '/../files')
+
+unless ENV['RACKSPACE_API_KEY'] and ENV['RACKSPACE_USERNAME']
+  puts "RACKSPACE_API_KEY and or RACKSPACE_USERNAME env variable(s) not set"
+  exit
+end
+
+compute = Fog::Compute.new(:provider           => 'Rackspace',
+                           :rackspace_api_key  => ENV['RACKSPACE_API_KEY'],
+                           :rackspace_username => ENV['RACKSPACE_USERNAME'])
+
+server = compute.servers.create(
+                                :flavor_id => 1, # 256MB
+                                :image_id => 49, # Ubuntu 10.04 LTS 64bit
+                                :name => 'vpn',
+                                :personality => [
+                                                 {
+                                                   'path' => "/root/.ssh/authorized_keys",
+                                                   'contents' => File.read(File.expand_path("~/.ssh/id_rsa.pub"))
+                                                 },
+                                                 {
+                                                   'path' => "/etc/ssh/sshd_config",
+                                                   'contents' => File.read(FILES + '/sshd_config')
+                                                 },
+                                                 {
+                                                   'path' => "/var/lib/misc/bootstrap.sh",
+                                                   'contents' => File.read(FILES + '/bootstrap.sh')
+                                                 }
+                                                ]
+                                )
+puts "Creating #{server.name} (#{compute.images.get(server.image_id).name} #{compute.flavors.get(server.flavor_id).name})"
+server.wait_for { ready? }
+
+Net::SSH.start(server.addresses["public"].first, 'root') do |ssh|
+  ssh.exec!("/bin/bash /var/lib/misc/bootstrap.sh") do |channel, stream, data|
+    print data
+  end
+end
+
+puts "\n\nroot@#{server.addresses["public"].first} is ready"
+
+#sleep 60
+#server.destroy
