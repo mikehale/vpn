@@ -24,6 +24,6 @@ execute "sysctl -p" do
   action :nothing
 end
 
-template "/etc/sysctl.d/10-openvpn.conf" do
+template "/etc/sysctl.d/10-ipsec.conf" do
   notifies :run, "execute[sysctl -p]"
 end
