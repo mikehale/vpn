@@ -1,2 +1,4 @@
-node["public_ip"] = `ifconfig eth0 | egrep -o '([0-9]{1,3}\.){3}[0-9]{1,3}'|head -n1`
+addresses = node.network.interfaces[node.network.default_interface].addresses
+node["public_ip"] = addresses.detect{|addr,attr| attr["family"] == "inet" }.first
+
 include_recipe "ubuntu"
