@@ -11,7 +11,7 @@ COMMIT
 :PREROUTING ACCEPT
 :POSTROUTING ACCEPT
 :OUTPUT ACCEPT
--A POSTROUTING -s 172.16.0.0/255.255.255.0 -o eth0 -j SNAT --to-source <%= @node[:public_ip] %>
+-A POSTROUTING -s <%= node.openswan.private_subnet %> -o eth0 -j SNAT --to-source <%= @node[:public_ip] %>
 COMMIT
 
 *filter
@@ -23,7 +23,7 @@ COMMIT
 -A INPUT -p icmp -m icmp --icmp-type any -j ACCEPT
 -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
--A INPUT -s 172.16.0.0/24 -i ppp+ -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
+-A INPUT -s <%= node.openswan.private_subnet %> -i ppp+ -p udp -m state --state NEW -m udp --dport 53 -j ACCEPT
 -A INPUT -p udp -m state --state NEW -m udp --dport 500 -j ACCEPT
 -A INPUT -p udp -m state --state NEW -m udp --dport 4500 -j ACCEPT
 -A INPUT -p udp -m state --state NEW -m udp --dport 1701 -m mark --mark 0x1194 -j ACCEPT
@@ -31,6 +31,6 @@ COMMIT
 -A LOGDROP -m limit --limit 1/sec -j LOG --log-prefix "iptables-denied: " --log-level 6
 -A LOGDROP -m limit --limit 1/sec -j REJECT --reject-with icmp-port-unreachable
 -A LOGDROP -j DROP
--A FORWARD -s 172.16.0.0/24 ! -d 172.16.0.0/24 -i ppp+ -o eth0 -j ACCEPT
+-A FORWARD -s <%= node.openswan.private_subnet %> ! -d <%= node.openswan.private_subnet %> -i ppp+ -o eth0 -j ACCEPT
 -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
 COMMIT

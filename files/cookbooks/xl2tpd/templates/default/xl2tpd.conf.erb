@@ -2,8 +2,8 @@
 listen-addr = <%= @node[:public_ip] %>
 
 [lns default]
-ip range = 172.16.0.10-172.16.0.20
-local ip = 172.16.0.1
+ip range = <%= @node[:xl2tpd][:ip_range] %>
+local ip = <%= @node[:xl2tpd][:local_ip] %>
 
 refuse pap = yes
 require authentication = no
