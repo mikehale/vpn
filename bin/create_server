@@ -8,7 +8,7 @@ require 'json'
 NAME = "vpn"
 USER = "root"
 HOME = USER == "root" ? "/root" : "/home/#{USER}"
-RUN_LIST = %w[base openswan xl2tpd]
+RUN_LIST = %w[base openswan xl2tpd radius]
 FILES = File.expand_path(File.dirname(__FILE__) + '/../files')
 
 unless ENV['RACKSPACE_API_KEY'] and ENV['RACKSPACE_USERNAME']
