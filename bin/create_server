@@ -41,7 +41,7 @@ unless server = compute.servers.all.detect{|s| s.name == NAME }
 end
 
 Net::SSH.start(server.addresses["public"].first, USER) do |ssh|
-  ssh.exec!("mkdir -p /etc/chef /var/chef") do |channel, stream, data|
+  ssh.exec!("rm -rf /var/chef/cookbooks; mkdir -p /etc/chef /var/chef") do |channel, stream, data|
     print data
   end
 
