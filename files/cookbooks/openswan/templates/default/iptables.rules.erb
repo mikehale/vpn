@@ -4,6 +4,7 @@
 :FORWARD ACCEPT
 :OUTPUT ACCEPT
 :POSTROUTING ACCEPT
+-A POSTROUTING -p tcp --tcp-flags SYN,RST SYN -o eth0 -j TCPMSS --clamp-mss-to-pmtu
 -A INPUT -p udp -m udp --dport 4500 -j MARK --set-mark 0x1194
 COMMIT
 
